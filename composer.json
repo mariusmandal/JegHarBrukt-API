@@ -1,0 +1,7 @@
+{
+    "require": {
+        "silex/silex": "~1.1",
+        "mariusmandal/mapi": "dev-master",
+        "mariusmandal/msql": "dev-master"
+    }
+}
