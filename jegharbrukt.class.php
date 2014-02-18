@@ -1,7 +1,10 @@
 <?php
 
-class JHB {
-	protected $authenticated = false;
+class JHB extends API {
+	
+}
+
+class API {
 	protected $API;
 	
 	public function __construct( ) {
@@ -13,8 +16,24 @@ class JHB {
 		} catch( Exception $e ) {
 			throw $e;
 		}
-		$this->authenticated = true;
-		$this->API->writeaccess = true;
+	}
+	
+	public function authorize( $user, $token ) {
+		if( 'user' != get_class( $user ) ) {
+			throw new Exception('Cannot authorize without user object', 30);
+		}
+		if( empty( $token ) ) {
+			throw new Exception('Cannot authorize without user token', 31);
+		}
+		try{
+			$this->API->authorize( $user->ID, $token );
+		} catch (Exception $e ) {
+			throw $e;
+		}
+	}
+
+	public function get_auth() {
+		return $this->API->get_auth();
 	}
 	
 	public function setUnit( $unit ) {
@@ -26,11 +45,15 @@ class JHB {
 	}
 	
 	public function POST( $object, $data ) {
-		if( !$this->authenticated ) {
+		if( !$this->API->is_authenticated() ) {
 			throw new Exception('Api access not granted!', 20); 
 		}
-		if( !$this->API->writeaccess ) {
-			throw new Exception('You are not granted write access', 21);
+		if( !$this->API->has_writeaccess() ) {
+			throw new Exception('Api not granted write access', 21);
+		}
+		
+		if( 'unit' != get_class( $this->UNIT ) ) {
+			throw new Exception('Api not allowed write access without unit ID', 22);
 		}
 		
 		if( empty( $object ) ) {
@@ -51,7 +74,7 @@ class JHB {
 		$function	= $this->hooks[ $method ][ $action ]['function'];
 		$class 		= $this->hooks[ $method ][ $action ]['class'];
 		
-		$action_object = new $class();
+		$action_object = new $class( $this );
 		$action_object->$function( $data );
 	}
 	
