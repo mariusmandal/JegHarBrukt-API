@@ -137,6 +137,7 @@ class user extends user_meta {
 		
 		if( $sql->num_rows == 1 ) {
 			if( $sql->data['u_id'] == $u_id ) {
+				$this->_load( $u_id );
 				return $this;
 			}
 		}
