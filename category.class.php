@@ -57,6 +57,28 @@ class category extends category_meta {
 		return $this;
 	}
 	
+	public function load( $id ) {
+		$this->_load( $id );
+	}
+	
+	public function ID() {
+		if(!isset($this->unit_id)) {
+			throw new Exception('Could not create category ID - missing Unit ID',304);
+		}
+		if(!isset($this->c_id)) {
+			throw new Exception('Could not create category ID - missing Category ID for this Unit', 305);
+		}
+	
+		return 'U'. $this->u_id .'UN'. $this->unit_id.'C'.$this->c_id;
+	}
+	
+	private function _identify( $JHB ) {
+		$auth = $JHB->get_auth();
+		
+		$this->u_id = $auth->user_id;
+		$this->unit_id = $JHB->UNIT->ID;
+	}
+	
 	private function _load( $id ) {
 		$sql = new mSQL_DB();
 		$sql->select('*')
@@ -66,11 +88,19 @@ class category extends category_meta {
 			->process();
 		
 		if( $sql->num_rows == 0 ) {
-			throw new Exception('Invalid category ID',303);
+			$sql = new mSQL_DB();
+			$sql->select('*')
+				->from($this->table)
+				->where('u_id','c_unique_id')
+				->is(0, $id)
+				->process();
+			if( $sql->num_rows == 0 ) {			
+				throw new Exception('Invalid category ID',303);
+			}
 		}
 		$this->c_id = $sql->data['c_id'];
 		$this->unit_id = $sql->data['unit_id'];
-		$this->name = $sql->data['c_name'];
+		$this->title = $sql->data['c_name'];
 		$this->ID = $this->ID();
 	}
 	
@@ -101,23 +131,5 @@ class category extends category_meta {
 		}
 
 		return false;
-	}
-	
-	public function ID() {
-		if(!isset($this->unit_id)) {
-			throw new Exception('Could not create category ID - missing Unit ID',304);
-		}
-		if(!isset($this->c_id)) {
-			throw new Exception('Could not create category ID - missing Category ID for this Unit', 305);
-		}
-	
-		return 'U'. $this->u_id .'UN'. $this->unit_id.'C'.$this->c_id;
-	}
-	
-	private function _identify( $JHB ) {
-		$auth = $JHB->get_auth();
-		
-		$this->u_id = $auth->user_id;
-		$this->unit_id = $JHB->UNIT->ID;
 	}
 }

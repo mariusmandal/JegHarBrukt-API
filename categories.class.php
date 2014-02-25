@@ -13,6 +13,7 @@ class categories_meta {
 
 class categories extends categories_meta {
 	public $name;
+	public $categories = array();
 	
 	public function __construct( $JHB=false ) {
 		if( $JHB ) 
@@ -30,18 +31,30 @@ class categories extends categories_meta {
 	}
 	
 	public function get() {
+		$this->categories = array('system'=>array(), 'user'=>array());
 		$this->_load();
+		return $this->categories;
 	}
 	
 	private function _load() {
+		$this->_load_from_db( 'user', $this->u_id );
+		$this->_load_from_db( 'system',  0 );
+	}
+	
+	private function _load_from_db( $group,  $u_id ) {
 		$sql = new mSQL_DB();
 		$sql->select('*')
 			->from( $this->table )
+			->where('u_id')->is( $u_id )
 			->order( 'c_name ASC' )
 			->process();
 		while( $c = $sql->fetch() ) {
-			$category = new category( false, $c['c_unique_id'] );
+			$category = new category( false, false );
+			$category->u_id = $this->u_id;
+			$category->unit_id = $this->unit_id;
+			$category->load( $c['c_unique_id'] );
+			$this->categories[ $group ][] = $category;
 		}
-#		var_dump( $this );
+
 	}
 }
