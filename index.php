@@ -24,6 +24,21 @@ $_APIDATA->user->token = 'test';
 	$_APIDATA->request->object = 'transaction';
 	$_APIDATA->request->data	= array('description' => 'Just for fun', 'amount' => 100, 'category' => 'U1UN1C1');
 
+// TEST 3 - OPPRETT BRUKER
+	$_APIDATA->request = new stdClass();
+	$_APIDATA->request->method = 'POST';
+	$_APIDATA->request->object = 'user';
+	$_APIDATA->request->data	= array('username' => 'mariusmandal'.rand(0,100),'email'=>'mariusmandal2@gmail.com','password'=>'testpass');
+
+
+
+// TEST 4 - SJEKK TILGJENGELIGHET BRUKERNAVN
+	$_APIDATA->request = new stdClass();
+	$_APIDATA->request->method = 'GET';
+	$_APIDATA->request->object = 'user-available';
+	$_APIDATA->request->data	= 'mariusmandal';
+
+
 
 /// JHB API
 
@@ -50,7 +65,7 @@ require_once('unit.class.php');
 // IDENTIFY ACTIVE USER AND AUTHORIZE API
 	require_once('user.class.php');
 	try {
-		$USER = new user( $_APIDATA->user->ID );
+		$USER = new user( false, $_APIDATA->user->ID );
 	} catch( Exception $e ) {
 		APIdie( $e );
 	}
@@ -64,23 +79,30 @@ require_once('unit.class.php');
 // REQUIRE DEPENDENCIES (AND REGISTER HOOKS)
 	// CATEGORY
 	require_once('category.class.php');
-	$category = new category( $JHB );
-	$category->register_hooks( $JHB );
+	$init_cat = new category( $JHB );
+	$init_cat->register_hooks( $JHB );
 
 	// TRANSACTION
 	require_once('transaction.class.php');
-	$transaction = new transaction( $JHB );
-	$transaction->register_hooks( $JHB );
+	$init_trans = new transaction( $JHB );
+	$init_trans->register_hooks( $JHB );
+
+	// USER
+	require_once('user.class.php');
+	$init_user = new user( $JHB );
+	$init_user->register_hooks( $JHB );
 
 
 // IF SURVIVED ALL THE WAY HERE, TIME TO PROCESS REQUEST
 	try {
-		$JHB->{$_APIDATA->request->method}( $_APIDATA->request->object, $_APIDATA->request->data );
+		echo json_encode( $JHB->{$_APIDATA->request->method}( $_APIDATA->request->object, $_APIDATA->request->data ) );
 	} catch( Exception $e ) {
 		APIdie( $e );
 	}
 	
-die( json_encode(false) );
+#echo $JHB->debug_hooks();
+register_shutdown_function('session_write_close');	
+die( );
 
 
 

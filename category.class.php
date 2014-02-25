@@ -49,6 +49,8 @@ class category {
 				throw new Exception('Could not insert category because of SQL error ('.$sql->error.')', 306);
 			}
 		}
+		
+		return $this;
 	}
 	
 	private function _load( $id ) {
