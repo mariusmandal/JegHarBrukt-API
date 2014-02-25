@@ -1,13 +1,40 @@
 <?php
 
 class JHB extends API {
+	public function register_modules() {
+		// REQUIRE DEPENDENCIES (AND REGISTER HOOKS)
+		// CATEGORY
+		require_once(API_PATH.'category.class.php');
+		$init_cat = new category( $this );
+		$init_cat->register_hooks( $this );
 	
+		// TRANSACTION
+		require_once(API_PATH.'transaction.class.php');
+		$init_trans = new transaction( $this );
+		$init_trans->register_hooks( $this );
+	
+		// USER
+		require_once(API_PATH.'user.class.php');
+		$init_user = new user( $this );
+		$init_user->register_hooks( $this );
+	}
 }
 
 class API {
 	protected $API;
 	
 	public function __construct( ) {
+	}
+	
+	public function debug_hooks() {
+		$hook_debug = array();
+		foreach( $this->hooks as $method => $data ) {
+			foreach( $data as $action => $reference ) {
+				$hook_debug[ 'CLASS: '. $reference['class'] ][$method . ':'. $action] = $reference['class'].'::'.$reference['function'].'()';
+			}
+		}
+		
+		return var_export( $hook_debug, true );
 	}
 	
 	public function authenticate( $key, $secret ) {
@@ -63,8 +90,27 @@ class API {
 			throw new Exception('Data-array is mandatory when creating '. $object, 101);
 		}
 		
-		$this->_execute('POST', $object, false, $data );
+		return $this->_execute('POST', $object, false, $data );
 	}
+
+	public function GET( $object, $data ) {
+		if( !$this->API->is_authenticated() ) {
+			throw new Exception('Api access not granted!', 24); 
+		}
+		if( 'unit' != get_class( $this->UNIT ) ) {
+			throw new Exception('Api not allowed read access without unit ID', 25);
+		}
+		
+		if( empty( $object ) ) {
+			throw new Exception('Cannot work on empty object', 106);
+		}
+		if( empty( $data ) ) {
+			throw new Exception('Object identification is mandatory when getting data from '. $object, 107);
+		}
+		
+		return $this->_execute('GET', $object, false, $data );
+	}
+
 	
 	private function _execute( $method, $action, $id=false, $data=false ) {
 		if( !isset( $this->hooks[$method][ $action ] ) ) {
@@ -75,7 +121,7 @@ class API {
 		$class 		= $this->hooks[ $method ][ $action ]['class'];
 		
 		$action_object = new $class( $this );
-		$action_object->$function( $data );
+		return $action_object->$function( $data );
 	}
 	
 	public function register_action( $method, $action, $class, $function ) {
