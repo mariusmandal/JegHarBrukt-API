@@ -2,7 +2,7 @@
 class transaction {
 	private $table = 'jhb_transaction';
 	public $amount;
-	public $category;
+	public $c_id;
 	public $description;
 	
 	
@@ -51,6 +51,7 @@ class transaction {
 		if( $sql->error ) {
 			throw new Exception('Could not insert transaction because of SQL error ('.$sql->error.')', 406);
 		}
+		return $this;
 	}
 
 	private function _calc_next_id() {
@@ -77,29 +78,6 @@ class transaction {
 	
 		return 'U'. $this->u_id .'UN'. $this->unit_id.'T'.$this->t_id;
 	}
-
-	
-/*
-	public function create($amount, $description, $category_id) {
-		if( !is_int( $amount ) || $amount == 0 ) {
-			throw Exception('Amount is not a number. Given ' . gettype( $description ) );
-		}
-		if( !is_string( $description) ) {
-			throw Exception('Description is not a string. Given '. gettype( $description ) );
-		}
-		if( !is_int( $category_id ) || $category_id == 0 ) {
-			throw Exception('Category id is not a number. Given '. gettype( $description ) );
-		}
-		
-		$this->_create( $amount, $description, $category_id);
-	}
-	
-	private function $this->_create( $amount, $description, $category_id ) {
-		$sql = new SQL();
-		$sql->insert('jhb_transaction')
-			->set('amount','description','category_id')
-	}
-*/
 	
 	private function _identify( $JHB ) {
 		$auth = $JHB->get_auth();
