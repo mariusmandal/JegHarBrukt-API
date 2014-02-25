@@ -131,6 +131,11 @@ class API {
 
 	
 	private function _execute( $method, $action, $id=false, $data=false ) {
+		$auth = $this->API->get_auth();
+		if( !$auth ){
+			throw new Exception('API access not authorized');
+		}		
+
 		if( !isset( $this->hooks[$method][ $action ] ) ) {
 			throw new Exception('Requested function is not registered in API ('. $method .'::'. $action.')', 105);
 		}

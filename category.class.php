@@ -18,7 +18,8 @@ class category extends category_meta {
 	public $name;
 	
 	public function __construct( $JHB, $cat_id=false ) {
-		$this->_identify( $JHB );
+		if( $JHB ) 
+			$this->_identify( $JHB );
 		if( $cat_id ) {
 			$this->_load( $cat_id );
 		}
