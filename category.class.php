@@ -1,17 +1,10 @@
 <?php
 // When loading category from user, unit ID may be another than current unit_id
 // Loader will override unit_id to make it correct.
-class category {
-	private $table = 'jhb_category';
-	public $name;
+class category_meta {
+	protected $table = 'jhb_category';
 	
-	public function __construct( $JHB, $cat_id=false ) {
-		$this->_identify( $JHB );
-		if( $cat_id ) {
-			$this->_load( $cat_id );
-		}
-	}
-	
+	public function __construct(){}
 	
 	public function register_hooks( $JHB ) {
 		#HTTP_POST('category', $data)
@@ -19,6 +12,16 @@ class category {
 		$JHB->register_action('DELETE', 'category', 'category', 'delete');
 		$JHB->register_action('PUT', 'category', 'category', 'update');
 		$JHB->register_action('GET', 'category', 'category', 'getCategory');
+	}
+}
+class category extends category_meta {
+	public $name;
+	
+	public function __construct( $JHB, $cat_id=false ) {
+		$this->_identify( $JHB );
+		if( $cat_id ) {
+			$this->_load( $cat_id );
+		}
 	}
 	
 	public function create( $data ) {

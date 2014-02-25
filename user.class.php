@@ -1,9 +1,22 @@
 <?php
+class user_meta {
+	protected $table = 'jhb_user';
+	
+	public function __construct(){}
+	
+	public function register_hooks( $JHB ) {
+		#HTTP_POST('category', $data)
+		$JHB->register_action('POST', 'user', 'user', 'create');
+		$JHB->register_action('DELETE', 'user', 'user', 'delete');
+		$JHB->register_action('PUT', 'user', 'user', 'update');
+		$JHB->register_action('GET', 'user', 'user', 'get');
+		$JHB->register_action('GET', 'user-available', 'user', 'available');
+	}
+}
 
-class user {
+class user extends user_meta {
 	protected $u_id;
 	protected $api_got_access;
-	protected $table = 'jhb_user';
 	
 	public function __construct( $JHB=false, $id=false ) {
 		if( $JHB ) {
@@ -14,14 +27,6 @@ class user {
 		}
 	}
 
-	public function register_hooks( $JHB ) {
-		#HTTP_POST('category', $data)
-		$JHB->register_action('POST', 'user', 'user', 'create');
-		$JHB->register_action('DELETE', 'user', 'user', 'delete');
-		$JHB->register_action('PUT', 'user', 'user', 'update');
-		$JHB->register_action('GET', 'user', 'user', 'get');
-		$JHB->register_action('GET', 'user-available', 'user', 'available');
-	}
 	
 	public function available( $username ) {
 		if( empty( $username ) ) {

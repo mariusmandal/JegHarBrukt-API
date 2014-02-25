@@ -1,6 +1,18 @@
 <?php
-class transaction {
-	private $table = 'jhb_transaction';
+class transaction_meta {
+	protected $table = 'jhb_transaction';
+	
+	public function __construct(){}
+	
+	public function register_hooks( $JHB ) {
+		$JHB->register_action('POST', 'transaction', 'transaction', 'create');
+		$JHB->register_action('DELETE', 'transaction', 'transaction', 'delete');
+		$JHB->register_action('PUT', 'transaction', 'transaction', 'update');
+		$JHB->register_action('GET', 'transaction', 'transaction', 'getCategory');
+	}
+}
+
+class transaction extends transaction_meta {
 	public $amount;
 	public $c_id;
 	public $description;
@@ -12,15 +24,7 @@ class transaction {
 			$this->_load( $trans_id );
 		}
 	}
-	
-	public function register_hooks( $JHB ) {
-		#HTTP_POST('category', $data)
-		$JHB->register_action('POST', 'transaction', 'transaction', 'create');
-		$JHB->register_action('DELETE', 'transaction', 'transaction', 'delete');
-		$JHB->register_action('PUT', 'transaction', 'transaction', 'update');
-		$JHB->register_action('GET', 'transaction', 'transaction', 'getCategory');
-	}
-	
+
 	private function _load( $trans_id ) {
 		
 	}

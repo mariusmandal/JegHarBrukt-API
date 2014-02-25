@@ -3,19 +3,25 @@
 class JHB extends API {
 	public function register_modules() {
 		// REQUIRE DEPENDENCIES (AND REGISTER HOOKS)
+
+		// CATEGORIES
+		require_once(API_PATH.'categories.class.php');
+		$init_categories = new categories_meta();
+		$init_categories->register_hooks( $this );
+
 		// CATEGORY
 		require_once(API_PATH.'category.class.php');
-		$init_cat = new category( $this );
+		$init_cat = new category_meta();
 		$init_cat->register_hooks( $this );
 	
 		// TRANSACTION
 		require_once(API_PATH.'transaction.class.php');
-		$init_trans = new transaction( $this );
+		$init_trans = new transaction_meta();
 		$init_trans->register_hooks( $this );
 	
 		// USER
 		require_once(API_PATH.'user.class.php');
-		$init_user = new user( $this );
+		$init_user = new user_meta();
 		$init_user->register_hooks( $this );
 	}
 }
@@ -91,6 +97,18 @@ class API {
 		}
 		
 		return $this->_execute('POST', $object, false, $data );
+	}
+	
+	public function PUBLIC_GET( $action, $data ) {
+		if( !isset( $this->hooks['GET'][ $action ] ) ) {
+			throw new Exception('Requested function is not registered in API (GET::'. $action.')', 105);
+		}
+		
+		$function	= $this->hooks[ 'GET' ][ $action ]['function'];
+		$class 		= $this->hooks[ 'GET' ][ $action ]['class'];
+		
+		$action_object = new $class( false );
+		return $action_object->$function( $data );
 	}
 
 	public function GET( $object, $data ) {
